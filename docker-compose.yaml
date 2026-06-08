@@ -1,0 +1,75 @@
+networks:
+  frontend:
+  backend:
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: lemp-nginx-new
+    ports:
+      - "4001:80"
+    volumes:
+      - ./html:/var/www/html
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - php
+
+  php:
+    build: .
+    container_name: lemp-php-new
+    volumes:
+      - ./html:/var/www/html
+    networks:
+      - backend
+    secrets:
+      - db_password
+
+  mysql:
+    image: mysql:8.0
+    container_name: lemp-mysql-new
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend
+    secrets:
+      - db_root_password
+      - db_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: lemp-phpmyadmin-new
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_PASSWORD_FILE: /run/secrets/db_root_password
+      PMA_ARBITRARY: 1
+    ports:
+      - "6001:80"
+    networks:
+      - backend
+    secrets:
+      - db_root_password
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
+
+secrets:
+  db_root_password:
+    file: ./secrets/db_root_password.txt
+  db_password:
+    file: ./secrets/db_password.txt
