@@ -1,16 +1,22 @@
-# Laboratorium 14 - Docker Compose
+# Laboratorium 14D – Docker Compose z sekretami dla stacka LEMP
 
-## Cel
+## Opis
+Rozwiązanie zadania rozszerzonego – wykorzystanie Docker Secrets do przechowywania haseł MySQL i phpMyAdmin.
 
-Uruchomienie stosu LEMP:
+## Struktura
+├── docker-compose.yaml
+├── Dockerfile
+├── .gitignore
+├── html/
+│ └── index.php
+├── nginx/
+│ └── conf.d/
+│ └── default.conf
+└── secrets/
+├── db_root_password.txt
+└── db_password.txt
 
-- Nginx
-- PHP-FPM
-- MySQL
-
-oraz phpMyAdmin.
 
 ## Uruchomienie
-
 ```bash
-docker compose up -d
+docker compose up -d --build
